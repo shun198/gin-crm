@@ -5,22 +5,12 @@
 <!-- シールド一覧 -->
 <!-- 該当するプロジェクトの中から任意のものを選ぶ-->
 <p style="display: inline">
-  <!-- フロントエンドのフレームワーク一覧 -->
-  <img src="https://img.shields.io/badge/-Node.js-000000.svg?logo=node.js&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-Next.js-000000.svg?logo=next.js&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-TailwindCSS-000000.svg?logo=tailwindcss&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
   <!-- バックエンドのフレームワーク一覧 -->
   <!-- バックエンドの言語一覧 -->
   <img src="https://img.shields.io/badge/-Go-76E1FE.svg?logo=go&style=for-the-badge">
   <!-- ミドルウェア一覧 -->
   <img src="https://img.shields.io/badge/-Nginx-269539.svg?logo=nginx&style=for-the-badge">
   <img src="https://img.shields.io/badge/-Postgresql-336791.svg?logo=postgresql&style=for-the-badge&logoColor=white">
-  <!-- インフラ一覧 -->
-  <img src="https://img.shields.io/badge/-Docker-1488C6.svg?logo=docker&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-githubactions-FFFFFF.svg?logo=github-actions&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-Amazon%20aws-232F3E.svg?logo=amazon-aws&style=for-the-badge">
-  <img src="https://img.shields.io/badge/-terraform-20232A?style=for-the-badge&logo=terraform&logoColor=844EBA">
 </p>
 
 ## 目次
@@ -46,24 +36,13 @@
 
 ## プロジェクト名
 
-React、GO、Terraform のテンプレートリポジトリ
+GOのテンプレートリポジトリ
 
 <!-- プロジェクトについて -->
 
 ## プロジェクトについて
 
-React、GO、Terraform を勉強する際に使用できるテンプレート
-
-<!-- プロジェクトの概要を記載 -->
-
-  <p align="left">
-    <br />
-    <!-- プロジェクト詳細にBacklogのWikiのリンク -->
-    <a href="Backlogのwikiリンク"><strong>プロジェクト詳細 »</strong></a>
-    <br />
-    <br />
-
-<p align="right">(<a href="#top">トップへ</a>)</p>
+GO を勉強する際に使用できるテンプレート
 
 ## 環境
 
@@ -71,69 +50,8 @@ React、GO、Terraform を勉強する際に使用できるテンプレート
 
 | 言語・フレームワーク | バージョン |
 | -------------------- | ---------- |
-| Python               | 3.11.4     |
-| GO                   | 1.19.0     |
-| Postgres             | 15.2       |
-| Node.js              | 16.17.0    |
-| React                | 18.2.0     |
-| Next.js              | 13.4.6     |
-| Terraform            | 1.3.6      |
-
-その他のパッケージのバージョンは go.sum と package.json を参照してください
-
-<p align="right">(<a href="#top">トップへ</a>)</p>
-
-## ディレクトリ構成
-
-<!-- Treeコマンドを使ってディレクトリ構成を記載 -->
-
-```
-❯ tree -a -I "node_modules|.next|.git" -L 2
-.
-├── .devcontainer
-│   └── devcontainer.json
-├── .env
-├── .github
-│   ├── release-drafter.yml
-│   └── workflows
-├── .gitignore
-├── Makefile
-├── README.md
-├── backend
-│   ├── .vscode
-│   ├── go.sum
-│   ├── main.go
-│   ├── migrations
-│   ├── models
-│   └── tests
-├── containers
-│   ├── go
-│   ├── front
-│   ├── postgres
-│   └── nginx
-├── docker-compose.yml
-├── frontend
-│   ├── .gitignore
-│   ├── README.md
-│   ├── __test__
-│   ├── components
-│   ├── features
-│   ├── next-env.d.ts
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── pages
-│   ├── postcss.config.js
-│   ├── public
-│   ├── styles
-│   ├── tailwind.config.js
-│   └── tsconfig.json
-└── infra
-    ├── .gitignore
-    ├── docker-compose.yml
-    ├── main.tf
-    ├── network.tf
-    └── variables.tf
-```
+| GO                   | 1.21.0     |
+| Postgres             | 16.2       |
 
 <p align="right">(<a href="#top">トップへ</a>)</p>
 
@@ -142,18 +60,7 @@ React、GO、Terraform を勉強する際に使用できるテンプレート
 <!-- コンテナの作成方法、パッケージのインストール方法など、開発環境構築に必要な情報を記載 -->
 
 ### コンテナの作成と起動
-
-.env ファイルを以下の環境変数例と[環境変数の一覧](#環境変数の一覧)を元に作成
-
-```.env
-POSTGRES_NAME=postgres
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-```
-
-.env ファイルを作成後、以下のコマンドで開発環境を構築
+以下のコマンドで開発環境を構築
 
 ```
 make prepare
@@ -190,12 +97,6 @@ make down
 | make up       | コンテナの起動                                                          | docker-compose up -d                                                      |
 | make build    | イメージのビルド                                                        | docker-compose build                                                      |
 | make down     | コンテナの停止                                                          | docker-compose down                                                       |
-| make init     | Terraform の初期化                                                      | docker-compose -f infra/docker-compose.yml run --rm terraform init        |
-| make fmt      | Terraform の設定ファイルをフォーマット                                  | docker-compose -f infra/docker-compose.yml run --rm terraform fmt         |
-| make validate | Terraform の構成ファイルが正常であることを確認                          | docker-compose -f infra/docker-compose.yml run --rm terraform validate    |
-| make show     | 現在のリソースの状態を参照                                              | docker-compose -f infra/docker-compose.yml run --rm terraform show        |
-| make apply    | Terraform の内容を適用                                                  | docker-compose -f infra/docker-compose.yml run --rm terraform apply       |
-| make destroy  | Terraform で構成されたリソースを削除                                    | docker-compose -f infra/docker-compose.yml run --rm terraform destroy     |
 
 ### リモートデバッグの方法
 
