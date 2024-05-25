@@ -1,5 +1,4 @@
 datasource db {
-    // could be postgresql or mysql
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
