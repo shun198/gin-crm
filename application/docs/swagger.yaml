@@ -1,4 +1,5 @@
 basePath: /api
+host: localhost:8000
 info:
   contact: {}
   description: This is a sample crm project

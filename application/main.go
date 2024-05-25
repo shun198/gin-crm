@@ -19,6 +19,8 @@ import (
 // @title gin-crm API
 // @version 1.0
 // @description This is a sample crm project
+// @host localhost:8000
+// @BasePath /api
 func main() {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api"
@@ -43,21 +45,7 @@ func main() {
 			log.Fatal("データベースの接続の切断に失敗しました:%v", err)
 		}
 	}()
-	// @BasePath /api
-
-	// @Summary ping example
-	// @Schemes
-	// @Description do ping
-	// @Tags example
-	// @Accept json
-	// @Produce json
-	// @Success 200 {string} Helloworld
-	// @Router /api/health [get]
-	r.GET("/api/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "pass",
-		})
-	})
+	routes.GetCommonRoutes(r)
 	routes.GetUserRoutes(r, client)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run(":8000")
