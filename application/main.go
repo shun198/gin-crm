@@ -8,7 +8,7 @@ import (
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	database "github.com/shun198/gin-crm/config"
-	docs "github.com/shun198/gin-crm/docs"
+	_ "github.com/shun198/gin-crm/docs"
 	"github.com/shun198/gin-crm/middlewares"
 	"github.com/shun198/gin-crm/routes"
 	swaggerFiles "github.com/swaggo/files"
@@ -19,11 +19,20 @@ import (
 // @title gin-crm API
 // @version 1.0
 // @description This is a sample crm project
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
 // @host localhost:8000
 // @BasePath /api
+// @schemes http
 func main() {
 	r := gin.Default()
-	docs.SwaggerInfo.BasePath = "/api"
 	r.Use(middlewares.LoggerMiddleWare())
 	r.Use(gin.Recovery())
 	// https://pkg.go.dev/github.com/marktohark/gin-csrf#section-readme

@@ -9,6 +9,7 @@ import (
 func GetCommonRoutes(router *gin.Engine) *gin.Engine {
 	commonRoutes := router.Group("/api")
 	{
+		// HealthCheck godoc
 		// @Summary Health Check
 		// @Description Check if the server is running
 		// @Tags health
