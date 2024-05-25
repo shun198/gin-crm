@@ -8,8 +8,22 @@ import (
 )
 
 func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
-	users, err := client.User.FindMany().Exec(context.Background())
+	users, err := client.User.FindMany().Omit(
+		db.User.Password.Field(),
+		db.User.IsSuperuser.Field(),
+	).Exec(context.Background())
 	return users, err
+}
+
+func CreateUser(client *db.PrismaClient) (*db.UserModel, error) {
+	user, err := client.User.CreateOne(
+		db.User.Name.Set("テストユーザ03"),
+		db.User.EmployeeNumber.Set("00000003"),
+		db.User.Email.Set("00000003"),
+		db.User.Password.Set("test"),
+		db.User.Role.Set("ADMIN"),
+	).Exec(context.Background())
+	return user, err
 }
 
 // userIDから該当する一意のユーザを取得

@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shun198/gin-crm/emails"
 	"github.com/shun198/gin-crm/prisma/db"
 	"github.com/shun198/gin-crm/services"
 )
@@ -45,4 +46,9 @@ func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"is_active": toggled_user.IsActive})
+}
+
+func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
+	var subject = "ようこそ"
+	emails.SendEmail(subject)
 }
