@@ -16,3 +16,12 @@ func GetUsers(c *gin.Context, client *db.PrismaClient) {
 	}
 	c.JSON(http.StatusOK, users)
 }
+
+func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
+	user, err := services.ChangeUserDetails(client)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}

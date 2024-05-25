@@ -20,6 +20,9 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.GET("", func(c *gin.Context) {
 			controllers.GetUsers(c, client)
 		})
+		userRoutes.PATCH("/:id", func(c *gin.Context) {
+			controllers.ChangeUserDetails(c, client)
+		})
 	}
 	return router
 }

@@ -10,3 +10,8 @@ func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
 	users, err := client.User.FindMany().Exec(context.Background())
 	return users, err
 }
+
+func ChangeUserDetails(client *db.PrismaClient) ([]db.UserModel, error) {
+	users, err := client.User.FindMany().Exec(context.Background())
+	return users, err
+}
