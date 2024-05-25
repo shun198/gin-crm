@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 golang:1.20
+FROM --platform=linux/x86_64 golang:1.21
 
 WORKDIR /usr/local/go/src/gin-crm/
 
