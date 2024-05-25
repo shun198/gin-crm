@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: db
+    build:
+      context: .
+      dockerfile: containers/postgres/Dockerfile
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U "${POSTGRES_USER:-postgres}" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_NAME
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - "5432:5432" # デバッグ用
+
+  app:
+    container_name: app
+    build:
+      context: .
+      dockerfile: containers/go/Dockerfile
+    volumes:
+      - ./backend:/code
+      - ./static:/static
+    ports:
+      - "8000:8000"
+      # デバッグ用ポート
+      - "8080:8080"
+    command: go run main.go -b 0.0.0.0
+    stdin_open: true
+    tty: true
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    container_name: web
+    build:
+      context: .
+      dockerfile: containers/nginx/Dockerfile
+    volumes:
+      - ./static:/static
+    ports:
+      - 80:80
+    depends_on:
+      - app
+
+  front:
+    container_name: front
+    build:
+      context: .
+      dockerfile: containers/front/Dockerfile
+    volumes:
+      - ./frontend:/code
+      - node_modules_volume:/frontend/node_modules
+    command: sh -c "npm run dev"
+    ports:
+      - "3000:3000"
+      - "3030:3030"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - NEXT_PUBLIC_RESTAPI_URL=http://localhost/back
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=sns
+      - AWS_ACCESS_KEY_ID=localstack
+      - AWS_SECRET_ACCESS_KEY=localstack
+      - DEBUG=1
+    volumes:
+      - localstack_data:/tmp/localstack/data
+      - localstack_bin:/var/lib/localstack
+
+volumes:
+  db_data:
+  static:
+  localstack_data:
+  localstack_bin:
+  node_modules_volume:
+
+networks:
+  default:
+    name: testnet
