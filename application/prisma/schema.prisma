@@ -1,0 +1,50 @@
+datasource db {
+    // could be postgresql or mysql
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator db {
+    provider = "go run github.com/steebchen/prisma-client-go"
+}
+
+model User {
+    id              Int             @id @default(autoincrement())
+    name            String          @db.VarChar(255)
+    employee_number String          @unique @db.VarChar(8)
+    email           String          @unique
+    password        String          @db.VarChar(255)
+    role            Role            @default(ADMIN)
+    is_active       Boolean         @default(true)
+    is_verified     Boolean         @default(false)
+    is_superuser    Boolean         @default(false)
+    createdAt       DateTime        @default(now())
+    updatedAt       DateTime        @updatedAt
+    invitations     Invitation[]
+    passwordResets  PasswordReset[]
+}
+
+model Invitation {
+    id        Int      @id @default(autoincrement())
+    token     String   @db.VarChar(255)
+    is_used   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    expiry    DateTime
+    user      User     @relation(fields: [userId], references: [id])
+    userId    Int
+}
+
+model PasswordReset {
+    id        Int      @id @default(autoincrement())
+    token     String   @db.VarChar(255)
+    is_used   Boolean  @default(false)
+    createdAt DateTime @default(now())
+    expiry    DateTime
+    user      User     @relation(fields: [userId], references: [id])
+    userId    Int
+}
+
+enum Role {
+    ADMIN
+    GENERAL
+}
