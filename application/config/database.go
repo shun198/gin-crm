@@ -1,4 +1,4 @@
-package database
+package config
 
 import (
 	"github.com/shun198/gin-crm/prisma/db"

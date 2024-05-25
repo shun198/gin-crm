@@ -7,7 +7,7 @@ import (
 )
 
 func GetCommonRoutes(router *gin.Engine) *gin.Engine {
-	userRoutes := router.Group("/api")
+	commonRoutes := router.Group("/api")
 	{
 		// @Summary Health Check
 		// @Description Check if the server is running
@@ -16,7 +16,7 @@ func GetCommonRoutes(router *gin.Engine) *gin.Engine {
 		// @Produce json
 		// @Success 200 {object} map[string]string{"msg":"pass"}
 		// @Router /health [get]
-		userRoutes.GET("/health", func(c *gin.Context) {
+		commonRoutes.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
 				"msg": "pass",
 			})
