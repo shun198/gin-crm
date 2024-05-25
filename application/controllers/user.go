@@ -18,12 +18,18 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 }
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
-	user, err := services.ChangeUserDetails(client)
+	userID := c.Param("id")
+	user, err := services.GetUniqueUser(userID, client)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
+		return
+	}
+	updated_user, err := services.ChangeUserDetails(user, client)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, user)
+	c.JSON(http.StatusOK, updated_user)
 }
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {

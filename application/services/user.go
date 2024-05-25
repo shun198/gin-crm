@@ -24,9 +24,13 @@ func GetUniqueUser(userID string, client *db.PrismaClient) (*db.UserModel, error
 	return user, err
 }
 
-func ChangeUserDetails(client *db.PrismaClient) ([]db.UserModel, error) {
-	users, err := client.User.FindMany().Exec(context.Background())
-	return users, err
+func ChangeUserDetails(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
+	user, err := client.User.FindUnique(
+		db.User.ID.Equals(user.ID),
+	).Update(
+		db.User.IsActive.Set(!user.IsActive),
+	).Exec(context.Background())
+	return user, err
 }
 
 func ToggleUserActive(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
