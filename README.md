@@ -93,7 +93,7 @@ make down
 
 | Make          | 実行する処理                                                            | 元のコマンド                                                              |
 | ------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| make prepare  | node_modules のインストール、イメージのビルド、コンテナの起動を順に行う | docker-compose run --rm front npm install<br>docker-compose up -d --build |
+| make prepare  | node_modules のインストール、イメージのビルド、コンテナの起動を順に行う | docker-compose up -d --build |
 | make up       | コンテナの起動                                                          | docker-compose up -d                                                      |
 | make build    | イメージのビルド                                                        | docker-compose build                                                      |
 | make down     | コンテナの停止                                                          | docker-compose down                                                       |
