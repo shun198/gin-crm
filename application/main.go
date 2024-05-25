@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -33,10 +34,15 @@ func main() {
 			c.Abort()
 		},
 	}))
-	err := database.StartDatabase()
+	client, err := database.StartDatabase()
 	if err != nil {
-		panic(err)
+		log.Fatal("データベースとの接続に失敗しました:%v", err)
 	}
+	defer func() {
+		if err := client.Prisma.Disconnect(); err != nil {
+			log.Fatal("データベースの接続の切断に失敗しました:%v", err)
+		}
+	}()
 	// @BasePath /api
 
 	// @Summary ping example
@@ -52,12 +58,7 @@ func main() {
 			"msg": "pass",
 		})
 	})
-	r.GET("/api/admin/users/get_csrf_token", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"csrf-token": csrf.GetToken(c),
-		})
-	})
-	routes.GetUserRoutes(r)
+	routes.GetUserRoutes(r, client)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run(":8000")
 }
