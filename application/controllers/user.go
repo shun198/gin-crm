@@ -11,7 +11,7 @@ import (
 func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 	users, err := services.GetAllUsers(client)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, users)
@@ -26,7 +26,7 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 	}
 	updated_user, err := services.ChangeUserDetails(user, client)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, updated_user)
@@ -41,7 +41,7 @@ func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 	}
 	toggled_user, err := services.ToggleUserActive(user, client)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "ユーザの有効化/無効化に失敗しました"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"is_active": toggled_user.IsActive})
