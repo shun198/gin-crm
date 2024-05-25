@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: containers/go/Dockerfile
     volumes:
-      - ./application:/usr/local/go/src/event-booking
+      - ./application:/usr/local/go/src/gin-crm
     ports:
       - '8000:8000'
       # デバッグ用
