@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-	"net/http"
+	// "net/http"
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	// "github.com/gin-contrib/sessions"
+	// "github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	database "github.com/shun198/gin-crm/config"
 	_ "github.com/shun198/gin-crm/docs"
@@ -15,24 +15,9 @@ import (
 	"github.com/shun198/gin-crm/routes"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	csrf "github.com/utrack/gin-csrf"
+	// csrf "github.com/utrack/gin-csrf"
 )
 
-// @title gin-crm API
-// @version 1.0
-// @description This is a sample crm project
-// @termsOfService http://swagger.io/terms/
-
-// @contact.name API Support
-// @contact.url http://www.swagger.io/support
-// @contact.email support@swagger.io
-
-// @license.name Apache 2.0
-// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host localhost:8000
-// @BasePath /api
-// @schemes http
 func main() {
 	r := gin.Default()
 	r.Use(middlewares.LoggerMiddleWare())
@@ -50,15 +35,15 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 	// https://pkg.go.dev/github.com/marktohark/gin-csrf#section-readme
-	store := cookie.NewStore([]byte("cookie_secret"))
-	r.Use(sessions.Sessions("session_cookie", store))
-	r.Use(csrf.Middleware(csrf.Options{
-		Secret: "csrf_token",
-		ErrorFunc: func(c *gin.Context) {
-			c.String(http.StatusForbidden, "無効なCSRFトークンです")
-			c.Abort()
-		},
-	}))
+	// store := cookie.NewStore([]byte("cookie_secret"))
+	// r.Use(sessions.Sessions("session_cookie", store))
+	// r.Use(csrf.Middleware(csrf.Options{
+	// 	Secret: "csrf_token",
+	// 	ErrorFunc: func(c *gin.Context) {
+	// 		c.String(http.StatusForbidden, "無効なCSRFトークンです")
+	// 		c.Abort()
+	// 	},
+	// }))
 	client, err := database.StartDatabase()
 	if err != nil {
 		log.Fatal("データベースとの接続に失敗しました:%v", err)
