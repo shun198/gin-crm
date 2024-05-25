@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -35,9 +37,21 @@ func main() {
 	r := gin.Default()
 	r.Use(middlewares.LoggerMiddleWare())
 	r.Use(gin.Recovery())
+	// https://github.com/gin-contrib/cors
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowMethods:     []string{"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:3000"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 	// https://pkg.go.dev/github.com/marktohark/gin-csrf#section-readme
 	store := cookie.NewStore([]byte("cookie_secret"))
-	r.Use(sessions.Sessions("session_name_in_cookie", store))
+	r.Use(sessions.Sessions("session_cookie", store))
 	r.Use(csrf.Middleware(csrf.Options{
 		Secret: "csrf_token",
 		ErrorFunc: func(c *gin.Context) {
