@@ -20,7 +20,7 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	user, err := services.GetUniqueUser(userID, client)
+	user, err := services.GetUniqueUserByID(userID, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
@@ -35,7 +35,7 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	user, err := services.GetUniqueUser(userID, client)
+	user, err := services.GetUniqueUserByID(userID, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
@@ -50,5 +50,10 @@ func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 
 func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	var subject = "ようこそ"
+	emails.SendEmail(subject)
+}
+
+func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
+	var subject = "パスワードの再設定"
 	emails.SendEmail(subject)
 }

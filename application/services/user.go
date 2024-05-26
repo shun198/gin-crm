@@ -29,7 +29,7 @@ func CreateUser(client *db.PrismaClient) (*db.UserModel, error) {
 // userIDから該当する一意のユーザを取得
 //
 // 該当するユーザが存在すればuserを返し、存在しなければerrorを返す
-func GetUniqueUser(userID string, client *db.PrismaClient) (*db.UserModel, error) {
+func GetUniqueUserByID(userID string, client *db.PrismaClient) (*db.UserModel, error) {
 	var user_id int
 	// 数字以外のIDを入れたとき
 	user_id, err := strconv.Atoi(userID)
