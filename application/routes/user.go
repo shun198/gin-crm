@@ -29,9 +29,6 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.PATCH("/:id/change_user_details", func(c *gin.Context) {
 			controllers.ChangeUserDetails(c, client)
 		})
-		userRoutes.DELETE("/:id", func(c *gin.Context) {
-			controllers.ChangeUserDetails(c, client)
-		})
 		userRoutes.POST("/:id/toggle_user_active", func(c *gin.Context) {
 			controllers.ToggleUserActive(c, client)
 		})
