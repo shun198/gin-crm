@@ -22,7 +22,9 @@ services:
       - proxynet
   db:
     container_name: db
-    image: postgres:16.2
+    build:
+      context: .
+      dockerfile: containers/postgres/Dockerfile
     volumes:
       - db_data:/var/lib/postgresql/data
     healthcheck:
