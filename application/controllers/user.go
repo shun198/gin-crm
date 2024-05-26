@@ -63,6 +63,26 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 	emails.SendEmail(subject)
 }
 
+func VerifyUser(c *gin.Context, client *db.PrismaClient) {
+	services.VerifyUser()
+}
+
+func ChangePassword(c *gin.Context, client *db.PrismaClient) {
+	services.ChangePassword()
+}
+
+func ResetPassword(c *gin.Context, client *db.PrismaClient) {
+	services.ResetPassword()
+}
+
+func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
+	services.CheckInvitationToken()
+}
+
+func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
+	services.CheckResetPasswordToken()
+}
+
 func UserInfo(c *gin.Context, client *db.PrismaClient) {
 	services.UserInfo()
 }

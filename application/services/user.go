@@ -65,32 +65,24 @@ func ToggleUserActive(user *db.UserModel, client *db.PrismaClient) (*db.UserMode
 	return user, err
 }
 
-func VerifyUser(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
-	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user.ID),
-	).Exec(context.Background())
-	return user, err
+func VerifyUser() string {
+	return "未完成"
 }
 
-func ChangePassword(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
-	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user.ID),
-	).Exec(context.Background())
-	return user, err
+func ChangePassword() string {
+	return "未完成"
 }
 
-func CheckInvitationToken(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
-	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user.ID),
-	).Exec(context.Background())
-	return user, err
+func ResetPassword() string {
+	return "未完成"
 }
 
-func CheckResetPasswordToken(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
-	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user.ID),
-	).Exec(context.Background())
-	return user, err
+func CheckInvitationToken() string {
+	return "未完成"
+}
+
+func CheckResetPasswordToken() string {
+	return "未完成"
 }
 
 func UserInfo() string {
