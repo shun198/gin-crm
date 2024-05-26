@@ -7,11 +7,6 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-// type emailTemplates struct {
-// 	html      string
-// 	plaintext string
-// }
-
 func SendEmail(subject string) {
 	m := gomail.NewMessage()
 	m.SetHeader("From", os.Getenv("MAIL_ADMIN"))
