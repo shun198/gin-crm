@@ -62,3 +62,7 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 	var subject = "パスワードの再設定"
 	emails.SendEmail(subject)
 }
+
+func UserInfo(c *gin.Context, client *db.PrismaClient) {
+	services.UserInfo()
+}

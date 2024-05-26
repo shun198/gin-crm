@@ -93,9 +93,6 @@ func CheckResetPasswordToken(user *db.UserModel, client *db.PrismaClient) (*db.U
 	return user, err
 }
 
-func UserInfo(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
-	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user.ID),
-	).Exec(context.Background())
-	return user, err
+func UserInfo() string {
+	return "未完成"
 }
