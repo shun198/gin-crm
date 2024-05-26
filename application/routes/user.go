@@ -17,10 +17,19 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 				"csrf-token": csrf.GetToken(c),
 			})
 		})
+		userRoutes.POST("/login", func(c *gin.Context) {
+			controllers.GetAllUsers(c, client)
+		})
+		userRoutes.POST("/logout", func(c *gin.Context) {
+			controllers.GetAllUsers(c, client)
+		})
 		userRoutes.GET("", func(c *gin.Context) {
 			controllers.GetAllUsers(c, client)
 		})
 		userRoutes.PATCH("/:id/change_user_details", func(c *gin.Context) {
+			controllers.ChangeUserDetails(c, client)
+		})
+		userRoutes.DELETE("/:id", func(c *gin.Context) {
 			controllers.ChangeUserDetails(c, client)
 		})
 		userRoutes.POST("/:id/toggle_user_active", func(c *gin.Context) {
@@ -29,7 +38,28 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.POST("/send_invite_user_email", func(c *gin.Context) {
 			controllers.SendInviteUserEmail(c, client)
 		})
+		userRoutes.POST("/resend_invitation", func(c *gin.Context) {
+			controllers.SendInviteUserEmail(c, client)
+		})
 		userRoutes.POST("/send_reset_password_email", func(c *gin.Context) {
+			controllers.SendResetPasswordEmail(c, client)
+		})
+		userRoutes.POST("/verify_user", func(c *gin.Context) {
+			controllers.SendInviteUserEmail(c, client)
+		})
+		userRoutes.POST("/change_password", func(c *gin.Context) {
+			controllers.SendResetPasswordEmail(c, client)
+		})
+		userRoutes.POST("/reset_password", func(c *gin.Context) {
+			controllers.SendResetPasswordEmail(c, client)
+		})
+		userRoutes.POST("/check_invitation_token", func(c *gin.Context) {
+			controllers.SendResetPasswordEmail(c, client)
+		})
+		userRoutes.POST("/check_reset_password_token", func(c *gin.Context) {
+			controllers.SendResetPasswordEmail(c, client)
+		})
+		userRoutes.POST("/user_info", func(c *gin.Context) {
 			controllers.SendResetPasswordEmail(c, client)
 		})
 	}
