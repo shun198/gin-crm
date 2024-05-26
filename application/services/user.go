@@ -47,6 +47,7 @@ func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
 }
 
 func ChangeUserDetails(user *db.UserModel, client *db.PrismaClient) (*db.UserModel, error) {
+	// バリデーションをどうするか考える
 	user, err := client.User.FindUnique(
 		db.User.ID.Equals(user.ID),
 	).Update(

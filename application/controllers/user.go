@@ -53,6 +53,11 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	emails.SendEmail(subject)
 }
 
+func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
+	var subject = "ようこそ"
+	emails.SendEmail(subject)
+}
+
 func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 	var subject = "パスワードの再設定"
 	emails.SendEmail(subject)
