@@ -5,7 +5,6 @@ package main
 import (
 	"context"
 	"log"
-	"time"
 
 	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/prisma/db"
@@ -44,8 +43,6 @@ func main() {
 			db.User.IsActive.Set(true),
 			db.User.IsVerified.Set(false),
 			db.User.IsSuperuser.Set(false),
-			db.User.CreatedAt.Set(time.Now()),
-			db.User.UpdatedAt.Set(time.Now()),
 		).
 		Update(
 			db.User.Name.Set("テストユーザゼロイチ"),
@@ -54,7 +51,6 @@ func main() {
 			db.User.IsActive.Set(true),
 			db.User.IsVerified.Set(false),
 			db.User.IsSuperuser.Set(false),
-			db.User.UpdatedAt.Set(time.Now()),
 		).
 		Exec(context.TODO())
 	_, err = client.User.UpsertOne(
@@ -69,8 +65,6 @@ func main() {
 			db.User.IsActive.Set(true),
 			db.User.IsVerified.Set(false),
 			db.User.IsSuperuser.Set(false),
-			db.User.CreatedAt.Set(time.Now()),
-			db.User.UpdatedAt.Set(time.Now()),
 		).
 		Update(
 			db.User.Name.Set("テストユーザゼロニ"),
@@ -79,7 +73,6 @@ func main() {
 			db.User.IsActive.Set(true),
 			db.User.IsVerified.Set(false),
 			db.User.IsSuperuser.Set(false),
-			db.User.UpdatedAt.Set(time.Now()),
 		).
 		Exec(context.TODO())
 	if err != nil {
