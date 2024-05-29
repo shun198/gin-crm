@@ -65,7 +65,7 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	services.ChangeUserDetails(req, userID, client)
-	c.JSON(http.StatusOK, err)
+	c.JSON(http.StatusOK, nil)
 }
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
@@ -125,6 +125,10 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
 		return
 	}
+	user := services.CreateUser(req, client)
+	invitation_token := services.CreateInvitationToken(user, client)
+	log.Print(invitation_token)
+	// var url = "password/register" + invitation_token
 	var subject = "ようこそ"
 	emails.SendEmail(subject)
 }
