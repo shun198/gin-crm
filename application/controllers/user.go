@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/shun198/gin-crm/dtos"
 	"github.com/shun198/gin-crm/emails"
 	"github.com/shun198/gin-crm/prisma/db"
 	"github.com/shun198/gin-crm/services"
@@ -28,11 +29,8 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 }
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
-	var req struct {
-		Name  string `json:"name" validate:"omitempty,max=255"`
-		Email string `json:"email" validate:"omitempty,email,max=254"`
-		Role  string `json:"role" validate:"omitempty,oneof=管理者 一般"`
-	}
+	userID := c.Param("id")
+	var req dtos.ChangeUserDetailsDto
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Failed to bind JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
@@ -61,18 +59,13 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	userID := c.Param("id")
-	user, err := services.GetUniqueUserByID(userID, client)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
+	_, err = services.GetUniqueUserByEmail(*req.Email, client)
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
 		return
 	}
-	updated_user, err := services.ChangeUserDetails(user, client)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, updated_user)
+	services.ChangeUserDetails(req, userID, client)
+	c.JSON(http.StatusOK, err)
 }
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
@@ -91,6 +84,47 @@ func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 }
 
 func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
+	var req dtos.SendInviteUserEmailDto
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			// カスタムエラーメッセージを生成
+			var errMsg string
+			switch err.Tag() {
+			case "required":
+				errMsg = fmt.Sprintf("%sは必須項目です", err.Field())
+			case "max":
+				errMsg = fmt.Sprintf("%sが長すぎます", err.Field())
+			case "email":
+				errMsg = fmt.Sprintf("%sは有効なメールアドレスでなければなりません", err.Field())
+			case "employee_number":
+				errMsg = "数字8桁の社員番号を入力してください"
+			case "oneof":
+				errMsg = fmt.Sprintf("%sは%sのいずれかでなければなりません", err.Field(), err.Param())
+			default:
+				errMsg = fmt.Sprintf("%sは無効です", err.Field())
+			}
+			validationErrors = append(validationErrors, errMsg)
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+		return
+	}
+	_, err = services.GetUniqueUserByEmail(*req.Email, client)
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
+		return
+	}
+	_, err = services.GetUniqueUserByEmployee_number(*req.EmployeeNumber, client)
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
+		return
+	}
 	var subject = "ようこそ"
 	emails.SendEmail(subject)
 }
