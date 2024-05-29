@@ -35,7 +35,7 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.POST("/send_invite_user_email", func(c *gin.Context) {
 			controllers.SendInviteUserEmail(c, client)
 		})
-		userRoutes.POST("/resend_invitation", func(c *gin.Context) {
+		userRoutes.POST(":id/resend_invitation", func(c *gin.Context) {
 			controllers.ReSendInviteUserEmail(c, client)
 		})
 		userRoutes.POST("/send_reset_password_email", func(c *gin.Context) {
