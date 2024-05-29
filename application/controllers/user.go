@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/shun198/gin-crm/dtos"
 	"github.com/shun198/gin-crm/emails"
 	"github.com/shun198/gin-crm/prisma/db"
+	"github.com/shun198/gin-crm/serializers"
 	"github.com/shun198/gin-crm/services"
 )
 
@@ -30,7 +30,7 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	var req dtos.ChangeUserDetailsDto
+	var req serializers.ChangeUserDetailsSerializer
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Failed to bind JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
@@ -84,7 +84,7 @@ func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 }
 
 func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
-	var req dtos.SendInviteUserEmailDto
+	var req serializers.SendInviteUserEmailSerializer
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Failed to bind JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})

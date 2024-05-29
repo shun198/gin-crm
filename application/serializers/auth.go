@@ -1,6 +1,6 @@
-package dtos
+package serializers
 
-type LoginDto struct {
+type LoginSerializer struct {
 	EmployeeNumber string `json:"email" bson:"string"`
 	Password       string `json:"password" bson:"password"`
 }

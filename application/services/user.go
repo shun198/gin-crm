@@ -4,8 +4,8 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/shun198/gin-crm/dtos"
 	"github.com/shun198/gin-crm/prisma/db"
+	"github.com/shun198/gin-crm/serializers"
 )
 
 func CreateUser(client *db.PrismaClient) (*db.UserModel, error) {
@@ -69,7 +69,7 @@ func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
 	return users, err
 }
 
-func ChangeUserDetails(req dtos.ChangeUserDetailsDto, userID string, client *db.PrismaClient) string {
+func ChangeUserDetails(req serializers.ChangeUserDetailsSerializer, userID string, client *db.PrismaClient) string {
 	return "未完成"
 }
 
