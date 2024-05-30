@@ -130,7 +130,16 @@ func ConvertRoles() {
 }
 
 func VerifyUser(invitation_token *db.InvitationModel, client *db.PrismaClient) {
-
+	client.Invitation.FindUnique(
+		db.Invitation.ID.Equals(invitation_token.ID),
+	).Update(
+		db.Invitation.IsUsed.Set(true),
+	).Exec(context.Background())
+	client.User.FindUnique(
+		db.User.ID.Equals(invitation_token.UserID),
+	).Update(
+		db.User.IsVerified.Set(true),
+	).Exec(context.Background())
 }
 
 func CheckPassword(user *db.UserModel, password string) bool {
@@ -138,8 +147,13 @@ func CheckPassword(user *db.UserModel, password string) bool {
 	return check
 }
 
-func ChangePassword(user *db.UserModel, client *db.PrismaClient) error {
-	return nil
+func ChangePassword(req serializers.ChangePasswordSerializer, user *db.UserModel, client *db.PrismaClient) {
+	new_password, _ := config.HashPassword(*req.NewPassword)
+	client.User.FindUnique(
+		db.User.ID.Equals(user.ID),
+	).Update(
+		db.User.Password.Set(new_password),
+	).Exec(context.Background())
 }
 
 func ResetPassword(client *db.PrismaClient) string {
