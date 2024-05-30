@@ -83,17 +83,17 @@ func GetUniqueUserByInvitationToken(token string, client *db.PrismaClient) (*db.
 	return invitation_token, err
 }
 func GetUniqueUserByPasswordResetToken(token string, client *db.PrismaClient) (*db.PasswordResetModel, error) {
-	passoword_reset_token, err := client.PasswordReset.FindFirst(
+	password_reset_token, err := client.PasswordReset.FindFirst(
 		db.PasswordReset.Token.Equals(token),
 	).Exec(context.Background())
 	// 該当するユーザが存在しないとき
 	if err != nil {
 		return nil, err
 	}
-	if time.Now().After(passoword_reset_token.Expiry) || passoword_reset_token.IsUsed {
+	if time.Now().After(password_reset_token.Expiry) || password_reset_token.IsUsed {
 		return nil, err
 	}
-	return passoword_reset_token, err
+	return password_reset_token, err
 }
 
 func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
@@ -129,8 +129,8 @@ func ConvertRoles() {
 
 }
 
-func VerifyUser(client *db.PrismaClient) string {
-	return "未完成"
+func VerifyUser(req serializers.VerifyUserSerializer, client *db.PrismaClient) {
+
 }
 
 func CheckPassword(user *db.UserModel, password string) bool {

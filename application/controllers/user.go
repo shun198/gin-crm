@@ -197,7 +197,39 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 }
 
 func VerifyUser(c *gin.Context, client *db.PrismaClient) {
-	services.VerifyUser(client)
+	var req serializers.VerifyUserSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			// カスタムエラーメッセージを生成
+			var errMsg string
+			switch err.Tag() {
+			case "required":
+				errMsg = fmt.Sprintf("%sは必須項目です", err.Field())
+			case "max":
+				errMsg = fmt.Sprintf("%sが長すぎます", err.Field())
+			default:
+				errMsg = fmt.Sprintf("%sは無効です", err.Field())
+			}
+			validationErrors = append(validationErrors, errMsg)
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+		return
+	}
+	_, err = services.CheckInvitationToken(*req.Token, client)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください。"})
+	}
+	// パスワードをセットする
+
+	// is_verified=True、is_used=Trueにする
+	services.VerifyUser(req, client)
 }
 
 func ChangePassword(c *gin.Context, client *db.PrismaClient) {
