@@ -222,14 +222,14 @@ func VerifyUser(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	_, err = services.CheckInvitationToken(*req.Token, client)
+	invitation_token, err := services.CheckInvitationToken(*req.Token, client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください。"})
 	}
 	// パスワードをセットする
 
 	// is_verified=True、is_used=Trueにする
-	services.VerifyUser(req, client)
+	services.VerifyUser(invitation_token, client)
 }
 
 func ChangePassword(c *gin.Context, client *db.PrismaClient) {

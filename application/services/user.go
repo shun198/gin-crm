@@ -129,7 +129,7 @@ func ConvertRoles() {
 
 }
 
-func VerifyUser(req serializers.VerifyUserSerializer, client *db.PrismaClient) {
+func VerifyUser(invitation_token *db.InvitationModel, client *db.PrismaClient) {
 
 }
 
