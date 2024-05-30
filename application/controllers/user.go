@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -120,7 +121,7 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
 		return
 	}
-	_, err = services.GetUniqueUserByEmployee_number(*req.EmployeeNumber, client)
+	_, err = services.GetUniqueUserByEmployee(*req.EmployeeNumber, client)
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
 		return
@@ -128,7 +129,8 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	user := services.CreateUser(req, client)
 	invitation_token := services.CreateInvitationToken(user, client)
 	log.Print(invitation_token)
-	// var url = "password/register" + invitation_token
+	url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
+	log.Print(url)
 	var subject = "ようこそ"
 	emails.SendEmail(subject)
 }
@@ -155,6 +157,41 @@ func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 }
 
 func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
+	var req serializers.SendResetPasswordEmailSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			// カスタムエラーメッセージを生成
+			var errMsg string
+			switch err.Tag() {
+			case "required":
+				errMsg = fmt.Sprintf("%sは必須項目です", err.Field())
+			case "max":
+				errMsg = fmt.Sprintf("%sが長すぎます", err.Field())
+			case "email":
+				errMsg = fmt.Sprintf("%sは有効なメールアドレスでなければなりません", err.Field())
+			default:
+				errMsg = fmt.Sprintf("%sは無効です", err.Field())
+			}
+			validationErrors = append(validationErrors, errMsg)
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+		return
+	}
+	user, err := services.GetUniqueUserByEmail(*req.Email, client)
+	if err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
+		return
+	}
+	password_reset_token := services.CreatePasswordResetToken(user, client)
+	url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
+	log.Print(url)
 	var subject = "パスワードの再設定"
 	emails.SendEmail(subject)
 }
@@ -164,7 +201,31 @@ func VerifyUser(c *gin.Context, client *db.PrismaClient) {
 }
 
 func ChangePassword(c *gin.Context, client *db.PrismaClient) {
-	services.ChangePassword()
+	var req serializers.ChangePasswordSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			// カスタムエラーメッセージを生成
+			var errMsg string
+			switch err.Tag() {
+			case "required":
+				errMsg = fmt.Sprintf("%sは必須項目です", err.Field())
+			case "max":
+				errMsg = fmt.Sprintf("%sが長すぎます", err.Field())
+			default:
+				errMsg = fmt.Sprintf("%sは無効です", err.Field())
+			}
+			validationErrors = append(validationErrors, errMsg)
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+		return
+	}
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
@@ -172,11 +233,41 @@ func ResetPassword(c *gin.Context, client *db.PrismaClient) {
 }
 
 func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
-	services.CheckInvitationToken()
+	var req serializers.CheckInvitationTokenSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+	}
+	_, err = services.CheckInvitationToken(*req.Token, client)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"check": true})
+	}
 }
 
 func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
-	services.CheckResetPasswordToken()
+	var req serializers.CheckResetPasswordTokenSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+	}
+	_, err = services.CheckResetPasswordToken(*req.Token, client)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+	} else {
+		c.JSON(http.StatusBadRequest, gin.H{"check": true})
+	}
 }
 
 func UserInfo(c *gin.Context, client *db.PrismaClient) {

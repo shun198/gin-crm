@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"strconv"
+	"time"
 
 	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/prisma/db"
@@ -57,7 +58,7 @@ func GetUniqueUserByEmail(email string, client *db.PrismaClient) (*db.UserModel,
 	return user, err
 }
 
-func GetUniqueUserByEmployee_number(employee_number string, client *db.PrismaClient) (*db.UserModel, error) {
+func GetUniqueUserByEmployee(employee_number string, client *db.PrismaClient) (*db.UserModel, error) {
 	user, err := client.User.FindUnique(
 		db.User.EmployeeNumber.Equals(employee_number),
 	).Exec(context.Background())
@@ -66,6 +67,33 @@ func GetUniqueUserByEmployee_number(employee_number string, client *db.PrismaCli
 		return nil, err
 	}
 	return user, err
+}
+
+func GetUniqueUserByInvitationToken(token string, client *db.PrismaClient) (*db.InvitationModel, error) {
+	invitation_token, err := client.Invitation.FindFirst(
+		db.Invitation.Token.Equals(token),
+	).Exec(context.Background())
+	// 該当するユーザが存在しないとき
+	if err != nil {
+		return nil, err
+	}
+	if time.Now().After(invitation_token.Expiry) || invitation_token.IsUsed {
+		return nil, err
+	}
+	return invitation_token, err
+}
+func GetUniqueUserByPasswordResetToken(token string, client *db.PrismaClient) (*db.PasswordResetModel, error) {
+	passoword_reset_token, err := client.PasswordReset.FindFirst(
+		db.PasswordReset.Token.Equals(token),
+	).Exec(context.Background())
+	// 該当するユーザが存在しないとき
+	if err != nil {
+		return nil, err
+	}
+	if time.Now().After(passoword_reset_token.Expiry) || passoword_reset_token.IsUsed {
+		return nil, err
+	}
+	return passoword_reset_token, err
 }
 
 func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
@@ -101,19 +129,15 @@ func VerifyUser() string {
 	return "未完成"
 }
 
-func ChangePassword() string {
+func CheckPassword() string {
 	return "未完成"
+}
+
+func ChangePassword() error {
+	return nil
 }
 
 func ResetPassword() string {
-	return "未完成"
-}
-
-func CheckInvitationToken() string {
-	return "未完成"
-}
-
-func CheckResetPasswordToken() string {
 	return "未完成"
 }
 

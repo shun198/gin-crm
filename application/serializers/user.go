@@ -12,3 +12,33 @@ type SendInviteUserEmailSerializer struct {
 	Email          *string `json:"email" validate:"required,email,max=254"`
 	Role           *string `json:"role" validate:"required,oneof=管理者 一般"`
 }
+
+type VerifyUserSerializer struct {
+	Token           *string `json:"token" validate:"required,string,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+}
+
+type SendResetPasswordEmailSerializer struct {
+	Email *string `json:"email" validate:"required,email,max=254"`
+}
+
+type ChangePasswordSerializer struct {
+	CurrentPassword *string `json:"current_password" validate:"required,string,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+}
+
+type ResetPasswordSerializer struct {
+	Token           *string `json:"token" validate:"required,string,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+}
+
+type CheckInvitationTokenSerializer struct {
+	Token *string `json:"token" validate:"required,string,max=255"`
+}
+
+type CheckResetPasswordTokenSerializer struct {
+	Token *string `json:"token" validate:"required,string,max=255"`
+}
