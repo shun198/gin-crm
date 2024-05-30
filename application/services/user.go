@@ -129,7 +129,7 @@ func ConvertRoles() {
 
 }
 
-func VerifyUser(user *db.UserModel, client *db.PrismaClient) string {
+func VerifyUser(client *db.PrismaClient) string {
 	return "未完成"
 }
 
@@ -142,7 +142,7 @@ func ChangePassword(user *db.UserModel, client *db.PrismaClient) error {
 	return nil
 }
 
-func ResetPassword(user *db.UserModel, client *db.PrismaClient) string {
+func ResetPassword(client *db.PrismaClient) string {
 	return "未完成"
 }
 

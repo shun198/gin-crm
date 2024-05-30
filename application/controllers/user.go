@@ -131,7 +131,7 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	log.Print(invitation_token)
 	url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
 	log.Print(url)
-	var subject = "ようこそ"
+	subject := "ようこそ"
 	emails.SendEmail(subject)
 }
 
@@ -152,7 +152,7 @@ func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザの認証がすでに完了しているため招待メールを再送信できません"})
 		return
 	}
-	var subject = "ようこそ"
+	subject := "ようこそ"
 	emails.SendEmail(subject)
 }
 
@@ -192,12 +192,12 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 	password_reset_token := services.CreatePasswordResetToken(user, client)
 	url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
 	log.Print(url)
-	var subject = "パスワードの再設定"
+	subject := "パスワードの再設定"
 	emails.SendEmail(subject)
 }
 
 func VerifyUser(c *gin.Context, client *db.PrismaClient) {
-	services.VerifyUser()
+	services.VerifyUser(client)
 }
 
 func ChangePassword(c *gin.Context, client *db.PrismaClient) {
@@ -229,7 +229,7 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
-	services.ResetPassword()
+	services.ResetPassword(client)
 }
 
 func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
