@@ -125,19 +125,24 @@ func ToggleUserActive(user *db.UserModel, client *db.PrismaClient) (*db.UserMode
 	return user, err
 }
 
-func VerifyUser() string {
+func ConvertRoles() {
+
+}
+
+func VerifyUser(user *db.UserModel, client *db.PrismaClient) string {
 	return "未完成"
 }
 
-func CheckPassword() string {
-	return "未完成"
+func CheckPassword(user *db.UserModel, password string) bool {
+	check := config.CheckPasswordHash(user.Password, password)
+	return check
 }
 
-func ChangePassword() error {
+func ChangePassword(user *db.UserModel, client *db.PrismaClient) error {
 	return nil
 }
 
-func ResetPassword() string {
+func ResetPassword(user *db.UserModel, client *db.PrismaClient) string {
 	return "未完成"
 }
 
