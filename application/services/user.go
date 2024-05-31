@@ -58,7 +58,7 @@ func GetUniqueUserByEmail(email string, client *db.PrismaClient) (*db.UserModel,
 	return user, err
 }
 
-func GetUniqueUserByEmployee(employee_number string, client *db.PrismaClient) (*db.UserModel, error) {
+func GetUniqueUserByEmployeeNumber(employee_number string, client *db.PrismaClient) (*db.UserModel, error) {
 	user, err := client.User.FindUnique(
 		db.User.EmployeeNumber.Equals(employee_number),
 	).Exec(context.Background())

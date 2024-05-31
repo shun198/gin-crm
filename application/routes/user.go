@@ -18,10 +18,10 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 			})
 		})
 		userRoutes.POST("/login", func(c *gin.Context) {
-			controllers.GetAllUsers(c, client)
+			controllers.Login(c, client)
 		})
 		userRoutes.POST("/logout", func(c *gin.Context) {
-			controllers.GetAllUsers(c, client)
+			controllers.Logout(c)
 		})
 		userRoutes.GET("", func(c *gin.Context) {
 			controllers.GetAllUsers(c, client)

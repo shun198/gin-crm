@@ -120,7 +120,7 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
 		return
 	}
-	_, err = services.GetUniqueUserByEmployee(*req.EmployeeNumber, client)
+	_, err = services.GetUniqueUserByEmployeeNumber(*req.EmployeeNumber, client)
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
 		return
