@@ -65,7 +65,7 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	services.ChangeUserDetails(req, userID, client)
-	c.JSON(http.StatusOK, nil)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
@@ -258,6 +258,17 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
+	userID, exists := c.Keys["user_id"]
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found"})
+		return
+	}
+	userIDInt, ok := userID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "user_id has wrong type"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"user_id": userIDInt})
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
@@ -300,8 +311,4 @@ func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"check": true})
 	}
-}
-
-func UserInfo(c *gin.Context, client *db.PrismaClient) {
-	services.UserInfo()
 }

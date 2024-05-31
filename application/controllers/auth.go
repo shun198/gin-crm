@@ -14,7 +14,7 @@ import (
 )
 
 type Claims struct {
-	EmployeeNumber string `json:"employee_number"`
+	UserID int `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -44,7 +44,7 @@ func Login(c *gin.Context, client *db.PrismaClient) {
 	}
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
-		EmployeeNumber: user.EmployeeNumber,
+		UserID: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    os.Getenv("ISS"),
 			Audience:  os.Getenv("AUD"),
@@ -64,6 +64,6 @@ func Login(c *gin.Context, client *db.PrismaClient) {
 }
 
 func Logout(c *gin.Context) {
-	// services.Logout()
+	// JWTトークンをクライアント側で削除するようにする
 	c.JSON(http.StatusOK, gin.H{})
 }

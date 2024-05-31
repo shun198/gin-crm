@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shun198/gin-crm/controllers"
+	"github.com/shun198/gin-crm/middlewares"
 	"github.com/shun198/gin-crm/prisma/db"
 	csrf "github.com/utrack/gin-csrf"
 )
@@ -26,7 +27,7 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.GET("", func(c *gin.Context) {
 			controllers.GetAllUsers(c, client)
 		})
-		userRoutes.PATCH("/:id/change_user_details", func(c *gin.Context) {
+		userRoutes.PATCH("/:id/change_user_details", middlewares.AuthenticateJWT(), func(c *gin.Context) {
 			controllers.ChangeUserDetails(c, client)
 		})
 		userRoutes.POST("/:id/toggle_user_active", func(c *gin.Context) {
@@ -44,7 +45,7 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.POST("/verify_user", func(c *gin.Context) {
 			controllers.SendInviteUserEmail(c, client)
 		})
-		userRoutes.POST("/change_password", func(c *gin.Context) {
+		userRoutes.POST("/change_password", middlewares.AuthenticateJWT(), func(c *gin.Context) {
 			controllers.ChangePassword(c, client)
 		})
 		userRoutes.POST("/reset_password", func(c *gin.Context) {
@@ -55,9 +56,6 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		})
 		userRoutes.POST("/check_reset_password_token", func(c *gin.Context) {
 			controllers.CheckResetPasswordToken(c, client)
-		})
-		userRoutes.POST("/user_info", func(c *gin.Context) {
-			controllers.UserInfo(c, client)
 		})
 	}
 	return router

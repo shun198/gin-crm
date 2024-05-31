@@ -14,9 +14,9 @@ type SendInviteUserEmailSerializer struct {
 }
 
 type VerifyUserSerializer struct {
-	Token           *string `json:"token" validate:"required,string,max=255"`
-	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
-	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+	Token           *string `json:"token" validate:"required,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,max=255"`
 }
 
 type SendResetPasswordEmailSerializer struct {
@@ -24,21 +24,21 @@ type SendResetPasswordEmailSerializer struct {
 }
 
 type ChangePasswordSerializer struct {
-	CurrentPassword *string `json:"current_password" validate:"required,string,max=255"`
-	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
-	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+	CurrentPassword *string `json:"current_password" validate:"required,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,max=255"`
 }
 
 type ResetPasswordSerializer struct {
-	Token           *string `json:"token" validate:"required,string,max=255"`
-	NewPassword     *string `json:"new_password" validate:"required,string,max=255"`
-	ConfirmPassword *string `json:"confirm_password" validate:"required,string,max=255"`
+	Token           *string `json:"token" validate:"required,max=255"`
+	NewPassword     *string `json:"new_password" validate:"required,max=255"`
+	ConfirmPassword *string `json:"confirm_password" validate:"required,max=255"`
 }
 
 type CheckInvitationTokenSerializer struct {
-	Token *string `json:"token" validate:"required,string,max=255"`
+	Token *string `json:"token" validate:"required,max=255"`
 }
 
 type CheckResetPasswordTokenSerializer struct {
-	Token *string `json:"token" validate:"required,string,max=255"`
+	Token *string `json:"token" validate:"required,max=255"`
 }
