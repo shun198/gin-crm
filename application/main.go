@@ -39,18 +39,18 @@ func main() {
 	}))
 	client, err := database.StartDatabase()
 	if err != nil {
-		log.Fatal("データベースとの接続に失敗しました:%v", err)
+		log.Printf("データベースとの接続に失敗しました:%v", err)
 	}
 	defer func() {
 		if err := client.Prisma.Disconnect(); err != nil {
-			log.Fatal("データベースの接続の切断に失敗しました:%v", err)
+			log.Printf("データベースの接続の切断に失敗しました:%v", err)
 		}
 	}()
 	db, err := sql.Open("postgres", "postgresql://postgres:postgres@db:5432/postgres")
 	if err != nil {
-		log.Fatal("データベースの接続の切断に失敗しました:%v", err)
+		log.Printf("データベースの接続の切断に失敗しました:%v", err)
 	}
-	store, err := postgres.NewStore(db, []byte(os.Getenv("SECRET_KEY")))
+	store, _ := postgres.NewStore(db, []byte(os.Getenv("SECRET_KEY")))
 	r.Use(sessions.Sessions("session", store))
 	// https://pkg.go.dev/github.com/marktohark/gin-csrf#section-readme
 	// r.Use(csrf.Middleware(csrf.Options{

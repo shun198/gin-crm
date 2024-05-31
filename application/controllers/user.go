@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -126,11 +125,11 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
 		return
 	}
-	user := services.CreateUser(req, client)
-	invitation_token := services.CreateInvitationToken(user, client)
-	log.Print(invitation_token)
-	url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
-	log.Print(url)
+	services.CreateUser(req, client)
+	// invitation_token := services.CreateInvitationToken(user, client)
+	// log.Print(invitation_token)
+	// url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
+	// log.Print(url)
 	subject := "ようこそ"
 	emails.SendEmail(subject)
 }
@@ -184,14 +183,14 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	user, err := services.GetUniqueUserByEmail(*req.Email, client)
+	_, err = services.GetUniqueUserByEmail(*req.Email, client)
 	if err == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
 		return
 	}
-	password_reset_token := services.CreatePasswordResetToken(user, client)
-	url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
-	log.Print(url)
+	// password_reset_token := services.CreatePasswordResetToken(user, client)
+	// url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
+	// log.Print(url)
 	subject := "パスワードの再設定"
 	emails.SendEmail(subject)
 }

@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  app:
+    container_name: app_debug
+    build:
+      context: .
+      dockerfile: containers/go/Dockerfile.debug
+    volumes:
+      - ./application:/usr/local/go/src/gin-crm
+    ports:
+      - '8000:8000'
+      - '2345:2345'
+    command: air -c .air.debug.toml
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - proxynet
+  db:
+    container_name: db_debug
+    build:
+      context: .
+      dockerfile: containers/postgres/Dockerfile
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U "${POSTGRES_USER:-postgres}" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_NAME
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    ports:
+      - '5432:5432' # デバッグ用
+    networks:
+      - proxynet
+  mail:
+    container_name: mail_debug
+    image: schickling/mailcatcher
+    ports:
+      - '1080:1080'
+      - '1025:1025'
+    networks:
+      - proxynet
+networks:
+  proxynet:
+    name: debugnet
+    external: false
+volumes:
+  db_data:

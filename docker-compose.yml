@@ -10,8 +10,6 @@ services:
       - ./application:/usr/local/go/src/gin-crm
     ports:
       - '8000:8000'
-      # デバッグ用
-      - '8080:8080'
     command: air -c .air.toml
     env_file:
       - .env

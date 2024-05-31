@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Remote",
+            "type": "go",
+            "request": "attach",
+            "mode": "remote",
+            "remotePath": "/usr/local/go/src/gin-crm",
+            "port": 2345,
+            "host": "localhost",
+            "cwd": "${workspaceRoot}",
+        }
+    ]
+}

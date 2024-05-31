@@ -1,0 +1,14 @@
+FROM golang:1.21
+
+WORKDIR /usr/local/go/src/gin-crm/
+
+RUN go install github.com/cosmtrek/air@v1.42.0 && \
+    go install github.com/go-delve/delve/cmd/dlv@latest
+
+COPY application/go.mod application/go.sum ./
+RUN go mod download
+
+RUN go run github.com/steebchen/prisma-client-go prefetch
+
+COPY application/. /usr/local/go/src/gin-crm/
+RUN go run github.com/steebchen/prisma-client-go generate
