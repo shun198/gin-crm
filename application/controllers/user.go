@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/emails"
 	"github.com/shun198/gin-crm/prisma/db"
 	"github.com/shun198/gin-crm/serializers"
@@ -239,6 +241,9 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
 		return
 	}
+	if *req.NewPassword != *req.ConfirmPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "新しいパスワードと確認用パスワードが異なっています"})
+	}
 	err := validate.Struct(req)
 	if err != nil {
 		var validationErrors []string
@@ -258,17 +263,15 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	userID, exists := c.Keys["user_id"]
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "user_id not found"})
-		return
+	userID := c.Keys["user_id"].(int)
+	user_ID := strconv.Itoa(userID)
+	user, _ := services.GetUniqueUserByID(string(user_ID), client)
+	check := config.CheckPasswordHash(user.Password, *req.CurrentPassword)
+	if !check {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "現在のパスワードが異なっています"})
 	}
-	userIDInt, ok := userID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "user_id has wrong type"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"user_id": userIDInt})
+	services.ChangePassword(req, user, client)
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
