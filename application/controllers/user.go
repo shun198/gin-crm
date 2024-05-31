@@ -226,6 +226,7 @@ func VerifyUser(c *gin.Context, client *db.PrismaClient) {
 	invitation_token, err := services.CheckInvitationToken(*req.Token, client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください。"})
+		return
 	}
 	// invitation_tokenからパスワードをセットする
 
@@ -275,7 +276,41 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
-	services.ResetPassword(client)
+	var req serializers.ResetPasswordSerializer
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("Failed to bind JSON: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
+		return
+	}
+	if *req.NewPassword != *req.ConfirmPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "新しいパスワードと確認用パスワードが異なっています"})
+	}
+	err := validate.Struct(req)
+	if err != nil {
+		var validationErrors []string
+		for _, err := range err.(validator.ValidationErrors) {
+			// カスタムエラーメッセージを生成
+			var errMsg string
+			switch err.Tag() {
+			case "required":
+				errMsg = fmt.Sprintf("%sは必須項目です", err.Field())
+			case "max":
+				errMsg = fmt.Sprintf("%sが長すぎます", err.Field())
+			default:
+				errMsg = fmt.Sprintf("%sは無効です", err.Field())
+			}
+			validationErrors = append(validationErrors, errMsg)
+		}
+		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
+		return
+	}
+	_, err = services.CheckResetPasswordToken(*req.Token, client)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください"})
+		return
+	}
+	// services.ResetPassword(req, user, client)
+	c.JSON(http.StatusBadRequest, gin.H{})
 }
 
 func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
@@ -288,12 +323,15 @@ func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
 	err := validate.Struct(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+		return
 	}
 	_, err = services.CheckInvitationToken(*req.Token, client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+		return
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"check": true})
+		return
 	}
 }
 
@@ -307,11 +345,14 @@ func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
 	err := validate.Struct(req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+		return
 	}
 	_, err = services.CheckResetPasswordToken(*req.Token, client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
+		return
 	} else {
 		c.JSON(http.StatusBadRequest, gin.H{"check": true})
+		return
 	}
 }

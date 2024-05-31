@@ -156,7 +156,7 @@ func ChangePassword(req serializers.ChangePasswordSerializer, user *db.UserModel
 	).Exec(context.Background())
 }
 
-func ResetPassword(client *db.PrismaClient) string {
+func ResetPassword(req serializers.ResetPasswordSerializer, user *db.UserModel, client *db.PrismaClient) string {
 	return "未完成"
 }
 
