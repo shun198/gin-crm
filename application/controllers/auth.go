@@ -10,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/prisma/db"
-	"github.com/shun198/gin-crm/serializers"
 	"github.com/shun198/gin-crm/services"
 )
 
@@ -19,8 +18,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+type LoginSerializer struct {
+	EmployeeNumber string `json:"employee_number" bson:"string"`
+	Password       string `json:"password" bson:"password"`
+}
+
 func Login(c *gin.Context, client *db.PrismaClient) {
-	var req serializers.LoginSerializer
+	var req LoginSerializer
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Failed to bind JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "社員番号もしくはパスワードが間違っています"})
