@@ -21,6 +21,10 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 	if err != nil {
 		log.Fatal(err)
 	}
+	role, err := ConvertRoles(*req.Role)
+	if err != nil {
+		log.Fatal(err)
+	}
 	// https://goprisma.org/docs/getting-started/advanced
 	// https://goprisma.org/docs/walkthrough/transactions
 	user, _ := client.User.CreateOne(
@@ -28,11 +32,9 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 		db.User.EmployeeNumber.Set(*req.EmployeeNumber),
 		db.User.Email.Set(*req.Email),
 		db.User.Password.Set(randomPassword),
-		db.User.Role.Set("ADMIN"),
-		// db.User.Role.Set(*req.Role),
+		db.User.Role.Set(role),
 	).Exec(context.Background())
 	invitation_token, _ := client.Invitation.CreateOne(
-		// link the post we created before
 		db.Invitation.Token.Set(token),
 		db.Invitation.Expiry.Set(time.Now().Add(24*time.Hour)),
 		db.Invitation.User.Link(
@@ -137,8 +139,15 @@ func ToggleUserActive(user *db.UserModel, client *db.PrismaClient) (*db.UserMode
 	return user, err
 }
 
-func ConvertRoles() {
-
+func ConvertRoles(role string) (db.Role, error) {
+	switch role {
+	case "管理者":
+		return db.RoleAdmin, nil
+	case "一般":
+		return db.RoleGeneral, nil
+	default:
+		return "", errors.New("存在しないロールです")
+	}
 }
 
 func VerifyUser(new_password string, invitation_token *db.InvitationModel, client *db.PrismaClient) {
