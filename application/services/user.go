@@ -21,6 +21,7 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 		log.Fatal(err)
 	}
 	// https://goprisma.org/docs/getting-started/advanced
+	// https://goprisma.org/docs/walkthrough/transactions
 	user, _ := client.User.CreateOne(
 		db.User.Name.Set(*req.Name),
 		db.User.EmployeeNumber.Set(*req.EmployeeNumber),
@@ -169,8 +170,18 @@ func ChangePassword(req serializers.ChangePasswordSerializer, user *db.UserModel
 	).Exec(context.Background())
 }
 
-func ResetPassword(req serializers.ResetPasswordSerializer, user *db.UserModel, client *db.PrismaClient) string {
-	return "未完成"
+func ResetPassword(req serializers.ResetPasswordSerializer, reset_password_token *db.PasswordResetModel, client *db.PrismaClient) {
+	new_password, _ := config.HashPassword(*req.NewPassword)
+	client.User.FindUnique(
+		db.User.ID.Equals(reset_password_token.UserID),
+	).Update(
+		db.User.Password.Set(new_password),
+	).Exec(context.Background())
+	client.PasswordReset.FindUnique(
+		db.PasswordReset.ID.Equals(reset_password_token.ID),
+	).Update(
+		db.PasswordReset.IsUsed.Set(true),
+	).Exec(context.Background())
 }
 
 func UserInfo() string {

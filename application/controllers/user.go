@@ -184,12 +184,13 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	_, err = services.GetUniqueUserByEmail(*req.Email, client)
-	if err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
+	user, err := services.GetUniqueUserByEmail(*req.Email, client)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
-	// password_reset_token := services.CreatePasswordResetToken(user, client)
+	password_reset_token := services.CreatePasswordResetToken(user, client)
+	log.Print(password_reset_token)
 	// url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
 	// log.Print(url)
 	subject := "パスワードの再設定"
@@ -283,6 +284,7 @@ func ResetPassword(c *gin.Context, client *db.PrismaClient) {
 	}
 	if *req.NewPassword != *req.ConfirmPassword {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "新しいパスワードと確認用パスワードが異なっています"})
+		return
 	}
 	err := validate.Struct(req)
 	if err != nil {
@@ -303,13 +305,13 @@ func ResetPassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"errors": validationErrors})
 		return
 	}
-	_, err = services.CheckResetPasswordToken(*req.Token, client)
+	reset_password_token, err := services.CheckResetPasswordToken(*req.Token, client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください"})
 		return
 	}
-	// services.ResetPassword(req, user, client)
-	c.JSON(http.StatusBadRequest, gin.H{})
+	services.ResetPassword(req, reset_password_token, client)
+	c.JSON(http.StatusBadRequest, gin.H{"msg": "パスワードの再設定が完了しました"})
 }
 
 func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {

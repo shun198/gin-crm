@@ -1,9 +1,12 @@
 package services
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"io"
+	"log"
+	"time"
 
 	"github.com/shun198/gin-crm/prisma/db"
 )
@@ -30,4 +33,19 @@ func TokenGenerator(length int) (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
+}
+
+func CreatePasswordResetToken(user *db.UserModel, client *db.PrismaClient) *db.PasswordResetModel {
+	token, err := TokenGenerator(32)
+	if err != nil {
+		log.Fatal(err)
+	}
+	passsword_reset_token, _ := client.PasswordReset.CreateOne(
+		db.PasswordReset.Token.Set(token),
+		db.PasswordReset.Expiry.Set(time.Now().Add(24*time.Hour)),
+		db.PasswordReset.User.Link(
+			db.User.ID.Equals(user.ID),
+		),
+	).Exec(context.Background())
+	return passsword_reset_token
 }
