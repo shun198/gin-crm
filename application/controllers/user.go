@@ -134,10 +134,9 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	invitation_token := services.CreateUser(req, client)
-	url := fmt.Sprintf("%s/password/register/%v", os.Getenv("BASE_URL"), invitation_token)
-	log.Print(url)
+	url := fmt.Sprintf("%s/password/register/%v", os.Getenv("BASE_URL"), invitation_token.Token)
 	subject := "ようこそ"
-	emails.SendEmail(subject)
+	emails.SendEmail(subject, invitation_token.RelationsInvitation.User.Email, url, "welcomeEmail")
 }
 
 func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
@@ -153,16 +152,17 @@ func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
 	}
-	if !invitation_token.RelationsInvitation.User.IsActive {
+	if !user.IsActive {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザが無効化されているため招待メールを再送信できません"})
 		return
 	}
-	if invitation_token.RelationsInvitation.User.IsVerified {
+	if user.IsVerified {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザの認証がすでに完了しているため招待メールを再送信できません"})
 		return
 	}
+	url := fmt.Sprintf("%s/password/register/%v", os.Getenv("BASE_URL"), invitation_token.Token)
 	subject := "ようこそ"
-	emails.SendEmail(subject)
+	emails.SendEmail(subject, user.Email, url, "welcomeEmail")
 }
 
 func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
@@ -200,10 +200,10 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 	}
 	reset_password_token := services.CreatePasswordResetToken(user, client)
 	// https://faun.pub/golangs-fmt-sprintf-and-printf-demystified-4adf6f9722a2
-	url := fmt.Sprintf("%s/password/reset/%v", os.Getenv("BASE_URL"), reset_password_token)
+	url := fmt.Sprintf("%s/password/reset/%v", os.Getenv("BASE_URL"), reset_password_token.Token)
 	log.Print(url)
 	subject := "パスワードの再設定"
-	emails.SendEmail(subject)
+	emails.SendEmail(subject, user.Email, url, "resetPassword")
 }
 
 func VerifyUser(c *gin.Context, client *db.PrismaClient) {
