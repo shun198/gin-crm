@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -133,9 +134,8 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	invitation_token := services.CreateUser(req, client)
-	log.Print(invitation_token)
-	// url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
-	// log.Print(url)
+	url := fmt.Sprintf("%s/password/register/%v", os.Getenv("BASE_URL"), invitation_token)
+	log.Print(url)
 	subject := "ようこそ"
 	emails.SendEmail(subject)
 }
@@ -153,7 +153,6 @@ func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
 	}
-	// ユーザが無効化されているかどうか
 	if !invitation_token.RelationsInvitation.User.IsActive {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザが無効化されているため招待メールを再送信できません"})
 		return
@@ -200,9 +199,9 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	reset_password_token := services.CreatePasswordResetToken(user, client)
-	log.Print(reset_password_token)
-	// url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), reset_password_token)
-	// log.Print(url)
+	// https://faun.pub/golangs-fmt-sprintf-and-printf-demystified-4adf6f9722a2
+	url := fmt.Sprintf("%s/password/reset/%v", os.Getenv("BASE_URL"), reset_password_token)
+	log.Print(url)
 	subject := "パスワードの再設定"
 	emails.SendEmail(subject)
 }
