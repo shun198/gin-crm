@@ -32,13 +32,18 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
+	user, err := services.GetUniqueUserByID(userID, client)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
+		return
+	}
 	var req serializers.ChangeUserDetailsSerializer
 	if err := c.ShouldBindJSON(&req); err != nil {
 		log.Printf("Failed to bind JSON: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
 		return
 	}
-	err := validate.Struct(req)
+	err = validate.Struct(req)
 	if err != nil {
 		var validationErrors []string
 		for _, err := range err.(validator.ValidationErrors) {
@@ -66,7 +71,7 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていないメールアドレスを入力してください"})
 		return
 	}
-	services.ChangeUserDetails(req, userID, client)
+	services.ChangeUserDetails(req, user.ID, client)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -137,18 +142,23 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 
 func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	// Invitationトークンから該当するユーザがないか探す
 	user, err := services.GetUniqueUserByID(userID, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
 	}
+	// Invitationトークンから該当するユーザがないか探す
+	invitation_token, err := services.GetInvitationTokenByUserID(user.ID, client)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
+		return
+	}
 	// ユーザが無効化されているかどうか
-	if !user.IsActive {
+	if !invitation_token.RelationsInvitation.User.IsActive {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザが無効化されているため招待メールを再送信できません"})
 		return
 	}
-	if user.IsVerified {
+	if invitation_token.RelationsInvitation.User.IsVerified {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "ユーザの認証がすでに完了しているため招待メールを再送信できません"})
 		return
 	}
@@ -204,6 +214,9 @@ func VerifyUser(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "無効なリクエストです"})
 		return
 	}
+	if *req.NewPassword != *req.ConfirmPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"msg": "新しいパスワードと確認用パスワードが異なっています"})
+	}
 	err := validate.Struct(req)
 	if err != nil {
 		var validationErrors []string
@@ -228,10 +241,7 @@ func VerifyUser(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください。"})
 		return
 	}
-	// invitation_tokenからパスワードをセットする
-
-	// is_verified=True、is_used=Trueにする
-	services.VerifyUser(invitation_token, client)
+	services.VerifyUser(*req.NewPassword, invitation_token, client)
 	c.JSON(http.StatusOK, gin.H{"msg": "ユーザの新規登録に成功しました"})
 }
 
@@ -271,7 +281,7 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 	if !check {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "現在のパスワードが異なっています"})
 	}
-	services.ChangePassword(req, user, client)
+	services.ChangePassword(*req.NewPassword, user, client)
 	c.JSON(http.StatusOK, gin.H{})
 }
 
@@ -310,7 +320,7 @@ func ResetPassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "有効期限切れのリンクです。管理者に再送信を依頼してください"})
 		return
 	}
-	services.ResetPassword(req, reset_password_token, client)
+	services.ResetPassword(*req.NewPassword, reset_password_token, client)
 	c.JSON(http.StatusBadRequest, gin.H{"msg": "パスワードの再設定が完了しました"})
 }
 

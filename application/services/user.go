@@ -118,12 +118,9 @@ func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
 	return users, err
 }
 
-func ChangeUserDetails(req serializers.ChangeUserDetailsSerializer, userID string, client *db.PrismaClient) {
-	var user_id int
-	// 数字以外のIDを入れたとき
-	user_id, _ = strconv.Atoi(userID)
+func ChangeUserDetails(req serializers.ChangeUserDetailsSerializer, userID int, client *db.PrismaClient) {
 	client.User.FindUnique(
-		db.User.ID.Equals(user_id),
+		db.User.ID.Equals(userID),
 	).Update(
 		db.User.Name.Set(*req.Name),
 		db.User.Email.Set(*req.Email),
@@ -143,7 +140,8 @@ func ConvertRoles() {
 
 }
 
-func VerifyUser(invitation_token *db.InvitationModel, client *db.PrismaClient) {
+func VerifyUser(new_password string, invitation_token *db.InvitationModel, client *db.PrismaClient) {
+	newPassword, _ := config.HashPassword(new_password)
 	client.Invitation.FindUnique(
 		db.Invitation.ID.Equals(invitation_token.ID),
 	).Update(
@@ -153,6 +151,7 @@ func VerifyUser(invitation_token *db.InvitationModel, client *db.PrismaClient) {
 		db.User.ID.Equals(invitation_token.UserID),
 	).Update(
 		db.User.IsVerified.Set(true),
+		db.User.Password.Set(newPassword),
 	).Exec(context.Background())
 }
 
@@ -161,29 +160,25 @@ func CheckPassword(user *db.UserModel, password string) bool {
 	return check
 }
 
-func ChangePassword(req serializers.ChangePasswordSerializer, user *db.UserModel, client *db.PrismaClient) {
-	new_password, _ := config.HashPassword(*req.NewPassword)
+func ChangePassword(new_password string, user *db.UserModel, client *db.PrismaClient) {
+	newPassword, _ := config.HashPassword(new_password)
 	client.User.FindUnique(
 		db.User.ID.Equals(user.ID),
 	).Update(
-		db.User.Password.Set(new_password),
+		db.User.Password.Set(newPassword),
 	).Exec(context.Background())
 }
 
-func ResetPassword(req serializers.ResetPasswordSerializer, reset_password_token *db.PasswordResetModel, client *db.PrismaClient) {
-	new_password, _ := config.HashPassword(*req.NewPassword)
+func ResetPassword(new_password string, reset_password_token *db.PasswordResetModel, client *db.PrismaClient) {
+	newPassword, _ := config.HashPassword(new_password)
 	client.User.FindUnique(
 		db.User.ID.Equals(reset_password_token.UserID),
 	).Update(
-		db.User.Password.Set(new_password),
+		db.User.Password.Set(newPassword),
 	).Exec(context.Background())
 	client.PasswordReset.FindUnique(
 		db.PasswordReset.ID.Equals(reset_password_token.ID),
 	).Update(
 		db.PasswordReset.IsUsed.Set(true),
 	).Exec(context.Background())
-}
-
-func UserInfo() string {
-	return "未完成"
 }
