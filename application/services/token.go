@@ -66,12 +66,12 @@ func CreatePasswordResetToken(user *db.UserModel, client *db.PrismaClient) *db.P
 	if err != nil {
 		log.Fatal(err)
 	}
-	passsword_reset_token, _ := client.PasswordReset.CreateOne(
+	password_reset_token, _ := client.PasswordReset.CreateOne(
 		db.PasswordReset.Token.Set(token),
 		db.PasswordReset.Expiry.Set(time.Now().Add(24*time.Hour)),
 		db.PasswordReset.User.Link(
 			db.User.ID.Equals(user.ID),
 		),
 	).Exec(context.Background())
-	return passsword_reset_token
+	return password_reset_token
 }
