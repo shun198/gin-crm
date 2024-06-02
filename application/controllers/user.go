@@ -127,9 +127,8 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "登録されていない社員番号を入力してください"})
 		return
 	}
-	services.CreateUser(req, client)
-	// invitation_token := services.CreateInvitationToken(user, client)
-	// log.Print(invitation_token)
+	invitation_token := services.CreateUser(req, client)
+	log.Print(invitation_token)
 	// url := fmt.Sprintf("%d/password/register/%d", os.Getenv("BASE_URL"), invitation_token)
 	// log.Print(url)
 	subject := "ようこそ"

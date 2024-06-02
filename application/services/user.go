@@ -11,11 +11,16 @@ import (
 	"github.com/shun198/gin-crm/serializers"
 )
 
-func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.PrismaClient) *db.UserModel {
+func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.PrismaClient) *db.InvitationModel {
 	randomPassword, err := config.RandomPassword()
 	if err != nil {
 		log.Fatal(err)
 	}
+	token, err := TokenGenerator(32)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// https://goprisma.org/docs/getting-started/advanced
 	user, _ := client.User.CreateOne(
 		db.User.Name.Set(*req.Name),
 		db.User.EmployeeNumber.Set(*req.EmployeeNumber),
@@ -24,7 +29,15 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 		db.User.Role.Set("ADMIN"),
 		// db.User.Role.Set(*req.Role),
 	).Exec(context.Background())
-	return user
+	invitation_token, _ := client.Invitation.CreateOne(
+		// link the post we created before
+		db.Invitation.Token.Set(token),
+		db.Invitation.Expiry.Set(time.Now().Add(24*time.Hour)),
+		db.Invitation.User.Link(
+			db.User.ID.Equals(user.ID),
+		),
+	).Exec(context.Background())
+	return invitation_token
 }
 
 // userIDから該当する一意のユーザを取得
