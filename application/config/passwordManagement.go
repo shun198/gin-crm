@@ -13,3 +13,11 @@ func CheckPasswordHash(hash, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
+
+func RandomPassword() (string, error) {
+	token, err := TokenGenerator(32)
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}

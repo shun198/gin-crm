@@ -13,7 +13,7 @@ import (
 
 func CheckInvitationToken(token string, client *db.PrismaClient) (*db.InvitationModel, error) {
 	invitation_token, err := GetUniqueUserByInvitationToken(token, client)
-	if err != nil {
+	if err != nil || invitation_token == nil {
 		return nil, err
 	}
 	return invitation_token, nil
@@ -21,7 +21,7 @@ func CheckInvitationToken(token string, client *db.PrismaClient) (*db.Invitation
 
 func CheckResetPasswordToken(token string, client *db.PrismaClient) (*db.PasswordResetModel, error) {
 	reset_password_token, err := GetUniqueUserByPasswordResetToken(token, client)
-	if err != nil {
+	if err != nil || reset_password_token == nil {
 		return nil, err
 	}
 	return reset_password_token, nil

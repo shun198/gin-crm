@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"log"
 	"strconv"
 	"time"
@@ -92,22 +93,22 @@ func GetUniqueUserByInvitationToken(token string, client *db.PrismaClient) (*db.
 		return nil, err
 	}
 	if time.Now().After(invitation_token.Expiry) || invitation_token.IsUsed {
-		return nil, err
+		return nil, errors.New("無効または有効期限切れのトークンです")
 	}
 	return invitation_token, err
 }
 func GetUniqueUserByPasswordResetToken(token string, client *db.PrismaClient) (*db.PasswordResetModel, error) {
-	password_reset_token, err := client.PasswordReset.FindFirst(
+	reset_password_token, err := client.PasswordReset.FindFirst(
 		db.PasswordReset.Token.Equals(token),
 	).Exec(context.Background())
 	// 該当するユーザが存在しないとき
 	if err != nil {
 		return nil, err
 	}
-	if time.Now().After(password_reset_token.Expiry) || password_reset_token.IsUsed {
-		return nil, err
+	if time.Now().After(reset_password_token.Expiry) || reset_password_token.IsUsed {
+		return nil, errors.New("無効または有効期限切れのトークンです")
 	}
-	return password_reset_token, err
+	return reset_password_token, err
 }
 
 func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {

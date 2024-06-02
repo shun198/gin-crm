@@ -13,11 +13,3 @@ func TokenGenerator(length int) (string, error) {
 	}
 	return base64.URLEncoding.EncodeToString(b), nil
 }
-
-func RandomPassword() (string, error) {
-	token, err := TokenGenerator(32)
-	if err != nil {
-		return "", err
-	}
-	return token, nil
-}

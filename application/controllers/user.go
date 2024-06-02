@@ -199,9 +199,9 @@ func SendResetPasswordEmail(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{})
 		return
 	}
-	password_reset_token := services.CreatePasswordResetToken(user, client)
-	log.Print(password_reset_token)
-	// url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), password_reset_token)
+	reset_password_token := services.CreatePasswordResetToken(user, client)
+	log.Print(reset_password_token)
+	// url := fmt.Sprintf("%d/password/reset/%d", os.Getenv("BASE_URL"), reset_password_token)
 	// log.Print(url)
 	subject := "パスワードの再設定"
 	emails.SendEmail(subject)
