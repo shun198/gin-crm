@@ -14,7 +14,8 @@ import (
 )
 
 type Claims struct {
-	UserID int `json:"user_id"`
+	UserID int     `json:"user_id"`
+	Role   db.Role `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -45,6 +46,7 @@ func Login(c *gin.Context, client *db.PrismaClient) {
 	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,
+		Role:   user.Role,
 		StandardClaims: jwt.StandardClaims{
 			Issuer:    os.Getenv("ISS"),
 			Audience:  os.Getenv("AUD"),

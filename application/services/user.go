@@ -121,6 +121,16 @@ func GetAllUsers(client *db.PrismaClient) ([]db.UserModel, error) {
 	return users, err
 }
 
+func GetAllUsersExceptSuperUser(client *db.PrismaClient) ([]db.UserModel, error) {
+	users, err := client.User.FindMany(
+		db.User.IsSuperuser.Equals(false),
+	).Omit(
+		db.User.Password.Field(),
+		db.User.IsSuperuser.Field(),
+	).Exec(context.Background())
+	return users, err
+}
+
 func ChangeUserDetails(req serializers.ChangeUserDetailsSerializer, userID int, client *db.PrismaClient) {
 	client.User.FindUnique(
 		db.User.ID.Equals(userID),

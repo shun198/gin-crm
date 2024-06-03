@@ -27,7 +27,7 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.GET("", func(c *gin.Context) {
 			controllers.GetAllUsers(c, client)
 		})
-		userRoutes.PATCH("/:id/change_user_details", middlewares.AuthenticateJWT(), func(c *gin.Context) {
+		userRoutes.PATCH("/:id/change_user_details", middlewares.AuthenticationMiddleware(), func(c *gin.Context) {
 			controllers.ChangeUserDetails(c, client)
 		})
 		userRoutes.POST("/:id/toggle_user_active", func(c *gin.Context) {
@@ -45,7 +45,7 @@ func GetUserRoutes(router *gin.Engine, client *db.PrismaClient) *gin.Engine {
 		userRoutes.POST("/verify_user", func(c *gin.Context) {
 			controllers.SendInviteUserEmail(c, client)
 		})
-		userRoutes.POST("/change_password", middlewares.AuthenticateJWT(), func(c *gin.Context) {
+		userRoutes.POST("/change_password", middlewares.AuthenticationMiddleware(), func(c *gin.Context) {
 			controllers.ChangePassword(c, client)
 		})
 		userRoutes.POST("/reset_password", func(c *gin.Context) {
