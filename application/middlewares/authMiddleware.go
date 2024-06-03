@@ -20,7 +20,7 @@ func AuthenticationMiddleware() gin.HandlerFunc {
 		tokenString := c.GetHeader("Authorization")
 
 		if tokenString == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "無効なトークンです"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "トークンが必須です"})
 			c.Abort()
 			return
 		}

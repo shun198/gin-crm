@@ -23,7 +23,18 @@ func init() {
 }
 
 func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
-	users, err := services.GetAllUsers(client)
+	userID := c.Keys["user_id"].(int)
+	user, _ := services.GetUniqueUserByID(userID, client)
+	if user.IsSuperuser {
+		users, err := services.GetAllUsers(client)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, users)
+		return
+	}
+	users, err := services.GetAllUsersExceptSuperUser(client)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -33,7 +44,8 @@ func GetAllUsers(c *gin.Context, client *db.PrismaClient) {
 
 func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	user, err := services.GetUniqueUserByID(userID, client)
+	user_id, _ := strconv.Atoi(userID)
+	user, err := services.GetUniqueUserByID(user_id, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
@@ -78,9 +90,15 @@ func ChangeUserDetails(c *gin.Context, client *db.PrismaClient) {
 
 func ToggleUserActive(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	user, err := services.GetUniqueUserByID(userID, client)
+	user_id, _ := strconv.Atoi(userID)
+	user, err := services.GetUniqueUserByID(user_id, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
+		return
+	}
+	loginUserID := c.Keys["user_id"].(int)
+	if user_id == loginUserID {
+		c.JSON(http.StatusNotFound, gin.H{"msg": "自身を無効化できません"})
 		return
 	}
 	toggled_user, err := services.ToggleUserActive(user, client)
@@ -141,7 +159,8 @@ func SendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 
 func ReSendInviteUserEmail(c *gin.Context, client *db.PrismaClient) {
 	userID := c.Param("id")
-	user, err := services.GetUniqueUserByID(userID, client)
+	user_id, _ := strconv.Atoi(userID)
+	user, err := services.GetUniqueUserByID(user_id, client)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "該当するユーザが存在しません"})
 		return
@@ -274,8 +293,7 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 		return
 	}
 	userID := c.Keys["user_id"].(int)
-	user_ID := strconv.Itoa(userID)
-	user, _ := services.GetUniqueUserByID(string(user_ID), client)
+	user, _ := services.GetUniqueUserByID(userID, client)
 	check := config.CheckPasswordHash(user.Password, *req.CurrentPassword)
 	if !check {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "現在のパスワードが異なっています"})
@@ -339,10 +357,8 @@ func CheckInvitationToken(c *gin.Context, client *db.PrismaClient) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
 		return
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"check": true})
-		return
 	}
+	c.JSON(http.StatusBadRequest, gin.H{"check": true})
 }
 
 func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
@@ -361,8 +377,6 @@ func CheckResetPasswordToken(c *gin.Context, client *db.PrismaClient) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"check": false})
 		return
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"check": true})
-		return
 	}
+	c.JSON(http.StatusBadRequest, gin.H{"check": true})
 }

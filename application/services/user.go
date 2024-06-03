@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"log"
-	"strconv"
 	"time"
 
 	"github.com/shun198/gin-crm/config"
@@ -47,15 +46,9 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 // userIDから該当する一意のユーザを取得
 //
 // 該当するユーザが存在すればuserを返し、存在しなければerrorを返す
-func GetUniqueUserByID(userID string, client *db.PrismaClient) (*db.UserModel, error) {
-	var user_id int
-	// 数字以外のIDを入れたとき
-	user_id, err := strconv.Atoi(userID)
-	if err != nil {
-		return nil, err
-	}
+func GetUniqueUserByID(userID int, client *db.PrismaClient) (*db.UserModel, error) {
 	user, err := client.User.FindUnique(
-		db.User.ID.Equals(user_id),
+		db.User.ID.Equals(userID),
 	).Exec(context.Background())
 	// 該当するユーザが存在しないとき
 	if err != nil {
