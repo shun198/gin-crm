@@ -9,7 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	database "github.com/shun198/gin-crm/config"
-	_ "github.com/shun198/gin-crm/docs"
+	docs "github.com/shun198/gin-crm/docs"
 	"github.com/shun198/gin-crm/middlewares"
 	"github.com/shun198/gin-crm/routes"
 	swaggerFiles "github.com/swaggo/files"
@@ -17,8 +17,12 @@ import (
 	// csrf "github.com/utrack/gin-csrf"
 )
 
+// @title gin-crm
+// @version 1.0.0
+// @description Ginを使ったプロジェクト
 func main() {
 	r := gin.Default()
+	docs.SwaggerInfo.BasePath = "/api/"
 	r.Use(middlewares.LoggerMiddleWare())
 	r.Use(gin.Recovery())
 	// https://github.com/gin-contrib/cors

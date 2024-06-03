@@ -16,3 +16,6 @@ migrate:
 seed:
 	docker-compose exec app go run prisma/seed.go
 
+format:
+	docker-compose exec app gofmt
+	docker-compose exec app goimports -l -w .

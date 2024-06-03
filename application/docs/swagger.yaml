@@ -1,18 +1,7 @@
-basePath: /api
-host: localhost:8000
 info:
-  contact:
-    email: support@swagger.io
-    name: API Support
-    url: http://www.swagger.io/support
-  description: This is a sample crm project
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: gin-crm API
-  version: "1.0"
+  contact: {}
+  description: Ginを使ったプロジェクト
+  title: gin-crm
+  version: 1.0.0
 paths: {}
-schemes:
-- http
 swagger: "2.0"
