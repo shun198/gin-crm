@@ -14,11 +14,9 @@ import (
 func TestHealthCheck(t *testing.T) {
 	r := gin.Default()
 	router := routes.GetCommonRoutes(r)
-
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/api/health", nil)
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 	assert.JSONEq(t, `{"msg": "pass"}`, w.Body.String())
 }

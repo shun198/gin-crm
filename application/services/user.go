@@ -20,16 +20,16 @@ func CreateUser(req serializers.SendInviteUserEmailSerializer, client *db.Prisma
 	if err != nil {
 		log.Fatal(err)
 	}
-	role, err := ConvertRoles(*req.Role)
+	role, err := ConvertRoles(req.Role)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// https://goprisma.org/docs/getting-started/advanced
 	// https://goprisma.org/docs/walkthrough/transactions
 	user, _ := client.User.CreateOne(
-		db.User.Name.Set(*req.Name),
-		db.User.EmployeeNumber.Set(*req.EmployeeNumber),
-		db.User.Email.Set(*req.Email),
+		db.User.Name.Set(req.Name),
+		db.User.EmployeeNumber.Set(req.EmployeeNumber),
+		db.User.Email.Set(req.Email),
 		db.User.Password.Set(randomPassword),
 		db.User.Role.Set(role),
 	).Exec(context.Background())
@@ -128,8 +128,8 @@ func ChangeUserDetails(req serializers.ChangeUserDetailsSerializer, userID int, 
 	client.User.FindUnique(
 		db.User.ID.Equals(userID),
 	).Update(
-		db.User.Name.Set(*req.Name),
-		db.User.Email.Set(*req.Email),
+		db.User.Name.Set(req.Name),
+		db.User.Email.Set(req.Email),
 	).Exec(context.Background())
 }
 
