@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// https://gin-gonic.com/docs/testing/
 func TestHealthCheck(t *testing.T) {
 	r := gin.Default()
 	router := routes.GetCommonRoutes(r)
