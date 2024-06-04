@@ -14,7 +14,7 @@ import (
 
 // https://gin-gonic.com/docs/testing/
 func LoginAdmin() *gin.Engine {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	loginReq := controllers.LoginSerializer{
 		EmployeeNumber: "00000001",
@@ -27,7 +27,7 @@ func LoginAdmin() *gin.Engine {
 }
 
 func LoginGeneral() *gin.Engine {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	loginReq := controllers.LoginSerializer{
 		EmployeeNumber: "00000001",
@@ -44,16 +44,14 @@ func TestGetAllUsers(t *testing.T) {
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/api/admin/users", nil)
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusOK, w.Code)
 }
 
 func TestGetAllUsersWithoutLogin(t *testing.T) {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/api/admin/users", nil)
 	router.ServeHTTP(w, req)
-
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 	assert.JSONEq(t, `{"error": "トークンが必須です"}`, w.Body.String())
 }

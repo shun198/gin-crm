@@ -10,23 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/controllers"
-	"github.com/shun198/gin-crm/prisma/db"
 	"github.com/shun198/gin-crm/routes"
 	"github.com/stretchr/testify/assert"
 )
 
-func SetUp() (*gin.Engine, *db.PrismaClient) {
+func SetUp() *gin.Engine {
 	r := gin.Default()
 	client, err := config.StartDatabase()
 	if err != nil {
 		panic(err)
 	}
 	router := routes.GetUserRoutes(r, client)
-	return router, client
+	return router
 }
 
 func TestLogin(t *testing.T) {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	loginReq := controllers.LoginSerializer{
 		EmployeeNumber: "00000001",
@@ -40,7 +39,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestLoginWithWrongPassword(t *testing.T) {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	loginReq := controllers.LoginSerializer{
 		EmployeeNumber: "00000001",
@@ -55,7 +54,7 @@ func TestLoginWithWrongPassword(t *testing.T) {
 }
 
 func TestLoginWithWrongEmployeeNumber(t *testing.T) {
-	router, _ := SetUp()
+	router := SetUp()
 	w := httptest.NewRecorder()
 	loginReq := controllers.LoginSerializer{
 		EmployeeNumber: "99999999",
