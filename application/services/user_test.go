@@ -3,6 +3,7 @@ package services_test
 import (
 	"testing"
 
+	"github.com/shun198/gin-crm/config"
 	"github.com/shun198/gin-crm/prisma/db"
 	"github.com/shun198/gin-crm/services"
 	"github.com/stretchr/testify/assert"
@@ -56,7 +57,7 @@ func TestGetUniqueUserFromEmployeeNumber(t *testing.T) {
 
 	mock.User.Expect(
 		client.User.FindUnique(
-			db.User.Email.Equals(expected.EmployeeNumber),
+			db.User.EmployeeNumber.Equals(expected.EmployeeNumber),
 		),
 	).Returns(expected)
 
@@ -67,7 +68,6 @@ func TestGetUniqueUserFromEmployeeNumber(t *testing.T) {
 }
 
 func TestGetAllUsers(t *testing.T) {
-	// client, mock, ensure := db.NewMock()
 	client, mock, ensure := db.NewMock()
 	defer ensure(t)
 
@@ -124,4 +124,63 @@ func TestConvertRolesToGeneral(t *testing.T) {
 func TestCannotConvertNotExistingRoles(t *testing.T) {
 	_, err := services.ConvertRoles("存在しないロール")
 	assert.Error(t, err)
+}
+
+func TestToggleUserActive(t *testing.T) {
+	client, mock, ensure := db.NewMock()
+	defer ensure(t)
+
+	expected := db.UserModel{
+		InnerUser: db.InnerUser{
+			ID:             1,
+			Name:           "テストユーザゼロイチ",
+			EmployeeNumber: "00000001",
+			Email:          "test01@example.com",
+			Role:           db.RoleAdmin,
+			IsActive:       false,
+			IsVerified:     false,
+			IsSuperuser:    false,
+		},
+	}
+
+	mock.User.Expect(
+		client.User.FindUnique(
+			db.User.ID.Equals(expected.ID),
+		).Update(
+			db.User.IsActive.Set(true)),
+	).Returns(expected)
+	toggled_user, err := services.ToggleUserActive(&expected, client)
+	assert.NoError(t, err)
+	assert.Equal(t, toggled_user.IsActive, true)
+}
+
+func TestCheckPassword(t *testing.T) {
+	client, mock, ensure := db.NewMock()
+	defer ensure(t)
+
+	password, _ := config.HashPassword("test")
+
+	expected := db.UserModel{
+		InnerUser: db.InnerUser{
+			ID:             1,
+			Name:           "テストユーザゼロイチ",
+			EmployeeNumber: "00000001",
+			Email:          "test01@example.com",
+			Password:       password,
+			Role:           db.RoleAdmin,
+			IsActive:       true,
+			IsVerified:     false,
+			IsSuperuser:    false,
+		},
+	}
+
+	mock.User.Expect(
+		client.User.FindUnique(
+			db.User.ID.Equals(expected.ID),
+		),
+	).Returns(expected)
+	user, err := services.GetUniqueUserByID(1, client)
+	check := services.CheckPassword(user, expected.Password)
+	assert.NoError(t, err)
+	assert.Equal(t, check, true)
 }

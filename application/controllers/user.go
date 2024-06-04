@@ -299,7 +299,6 @@ func ChangePassword(c *gin.Context, client *db.PrismaClient) {
 		c.JSON(http.StatusBadRequest, gin.H{"msg": "現在のパスワードが異なっています"})
 	}
 	services.ChangePassword(*req.NewPassword, user, client)
-	c.JSON(http.StatusOK, gin.H{})
 }
 
 func ResetPassword(c *gin.Context, client *db.PrismaClient) {
